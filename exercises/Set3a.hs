@@ -57,7 +57,7 @@ mapMaybe func (Just x) = Just $ func x
 --   mapMaybe2 div (Just 6) Nothing   ==>  Nothing
 
 mapMaybe2 :: (a -> b -> c) -> Maybe a -> Maybe b -> Maybe c
---mapMaybe2 f x y = todo
+-- TODO: this can be done in two lines
 mapMaybe2 _     Nothing     _           = Nothing
 mapMaybe2 _     _           Nothing     = Nothing
 mapMaybe2 func  (Just a)    (Just b)    = Just $ func a b
@@ -105,6 +105,7 @@ palindrome x = x == reverse x
 --   capitalize "goodbye cruel world" ==> "Goodbye Cruel World"
 
 capitalize :: String -> String
+-- TODO: this can be simplified
 capitalize str = unwords $ map capitalizeFirst (words str)
         where capitalizeFirst (x:xs) = [toUpper x] ++ xs
 
@@ -187,6 +188,7 @@ step k x = if x<k then Right (2*x) else Left x
 -- Hint! This is a great use for list comprehensions
 
 joinToLength :: Int -> [String] -> [String]
+-- TODO: there is a way not to call (++) twice
 joinToLength len xs = [a ++ b | a<-xs, b<-xs, length (a ++ b) == len]
 
 ------------------------------------------------------------------------------
@@ -202,6 +204,7 @@ joinToLength len xs = [a ++ b | a<-xs, b<-xs, length (a ++ b) == len]
 --   [] +|+ []            ==> []
 
 (+|+) :: [a] -> [a] -> [a]
+-- TODO: do this in one line
 (+|+) [] [] = []
 (+|+) a  [] = [head a]
 (+|+) [] b  = [head b]
@@ -226,6 +229,7 @@ joinToLength len xs = [a ++ b | a<-xs, b<-xs, length (a ++ b) == len]
 
 sumRights list = sumRights' 0 list
 
+-- TODO: this can be done without helper function
 sumRights' :: Int -> [Either a Int] -> Int
 sumRights' sum [] = sum
 sumRights' sum ((Right a):xs) = sumRights' (sum + a) xs
@@ -307,6 +311,7 @@ multiApp f gs x = f [g x | g<-gs]
 interpreter :: [String] -> [String]
 interpreter commands = interpreter' [] 0 0 commands
 
+-- TODO: do this with :
 interpreter' :: [String] -> Integer -> Integer -> [String] -> [String]
 interpreter' ret _ _ [] = ret
 interpreter' ret x y ("up":cs) = interpreter' ret x (y+1) cs
