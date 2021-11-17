@@ -57,10 +57,8 @@ mapMaybe func (Just x) = Just $ func x
 --   mapMaybe2 div (Just 6) Nothing   ==>  Nothing
 
 mapMaybe2 :: (a -> b -> c) -> Maybe a -> Maybe b -> Maybe c
--- TODO: this can be done in two lines
-mapMaybe2 _     Nothing     _           = Nothing
-mapMaybe2 _     _           Nothing     = Nothing
 mapMaybe2 func  (Just a)    (Just b)    = Just $ func a b
+mapMaybe2 _     _           _           = Nothing
 
 ------------------------------------------------------------------------------
 -- Ex 4: define the functions firstHalf and palindrome so that
@@ -105,8 +103,7 @@ palindrome x = x == reverse x
 --   capitalize "goodbye cruel world" ==> "Goodbye Cruel World"
 
 capitalize :: String -> String
--- TODO: this can be simplified
-capitalize str = unwords $ map capitalizeFirst (words str)
+capitalize = unwords . map capitalizeFirst . words
         where capitalizeFirst (x:xs) = [toUpper x] ++ xs
 
 ------------------------------------------------------------------------------
@@ -188,8 +185,7 @@ step k x = if x<k then Right (2*x) else Left x
 -- Hint! This is a great use for list comprehensions
 
 joinToLength :: Int -> [String] -> [String]
--- TODO: there is a way not to call (++) twice
-joinToLength len xs = [a ++ b | a<-xs, b<-xs, length (a ++ b) == len]
+joinToLength len xs = [c | a<-xs, b<-xs, let c = a ++ b, length c == len]
 
 ------------------------------------------------------------------------------
 -- Ex 10: implement the operator +|+ that returns a list with the first
@@ -204,11 +200,7 @@ joinToLength len xs = [a ++ b | a<-xs, b<-xs, length (a ++ b) == len]
 --   [] +|+ []            ==> []
 
 (+|+) :: [a] -> [a] -> [a]
--- TODO: do this in one line
-(+|+) [] [] = []
-(+|+) a  [] = [head a]
-(+|+) [] b  = [head b]
-(+|+) a  b  = [head a, head b]
+(+|+) a b = (take 1 a) ++ (take 1 b)
 
 ------------------------------------------------------------------------------
 -- Ex 11: remember the lectureParticipants example from Lecture 2? We
@@ -224,16 +216,8 @@ joinToLength len xs = [a ++ b | a<-xs, b<-xs, length (a ++ b) == len]
 --   sumRights [Right 1, Left "bad value", Right 2]  ==>  3
 --   sumRights [Left "bad!", Left "missing"]         ==>  0
 
--- sumRights :: [Either a Int] -> Int
--- sumRights list = todo
-
-sumRights list = sumRights' 0 list
-
--- TODO: this can be done without helper function
-sumRights' :: Int -> [Either a Int] -> Int
-sumRights' sum [] = sum
-sumRights' sum ((Right a):xs) = sumRights' (sum + a) xs
-sumRights' sum ((Left a):xs) = sumRights' sum xs
+sumRights :: [Either a Int] -> Int
+sumRights = foldr ((+) . either (const 0) id) 0
 
 ------------------------------------------------------------------------------
 -- Ex 12: recall the binary function composition operation
@@ -309,14 +293,14 @@ multiApp f gs x = f [g x | g<-gs]
 -- function, the surprise won't work.
 
 interpreter :: [String] -> [String]
-interpreter commands = interpreter' [] 0 0 commands
+interpreter commands = interpreter' (0,0) commands
 
--- TODO: do this with :
-interpreter' :: [String] -> Integer -> Integer -> [String] -> [String]
-interpreter' ret _ _ [] = ret
-interpreter' ret x y ("up":cs) = interpreter' ret x (y+1) cs
-interpreter' ret x y ("down":cs) = interpreter' ret x (y-1) cs
-interpreter' ret x y ("left":cs) = interpreter' ret (x-1) y cs
-interpreter' ret x y ("right":cs) = interpreter' ret (x+1) y cs
-interpreter' ret x y ("printX":cs) = interpreter' (ret ++ [show x]) x y cs
-interpreter' ret x y ("printY":cs) = interpreter' (ret ++ [show y]) x y cs
+interpreter' :: (Integer, Integer) -> [String] -> [String]
+interpreter' _     []            = []
+interpreter' (x,y) ("printX":cs) = show x : interpreter' (x, y) cs
+interpreter' (x,y) ("printY":cs) = show y : interpreter' (x, y) cs
+interpreter' (x,y) ("up":cs)     = interpreter' (x,(y+1)) cs
+interpreter' (x,y) ("down":cs)   = interpreter' (x,(y-1)) cs
+interpreter' (x,y) ("left":cs)   = interpreter' ((x-1),y) cs
+interpreter' (x,y) ("right":cs)  = interpreter' ((x+1),y) cs
+
