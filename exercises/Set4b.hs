@@ -76,6 +76,7 @@ concatStart :: [a]
 concatStart = []
 
 concatHelper :: [a] -> [a] -> [a]
+-- TODO: this can be done with omitting arguments
 concatHelper x y = x ++ y
 
 ------------------------------------------------------------------------------
@@ -127,5 +128,5 @@ myLast :: [a] -> Maybe a
 myLast xs = foldr lastHelper Nothing xs
 
 lastHelper x Nothing = Just x
-lastHelper x (Just y) = Just y
+lastHelper _ (Just y) = Just y
 
