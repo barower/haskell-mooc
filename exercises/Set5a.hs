@@ -208,6 +208,8 @@ data Color = Red | Green | Blue | Mix Color Color | Invert Color
 
 rgb :: Color -> [Double]
 
+-- TODO: use map and zipWith
+
 rgb Red   = [1,0,0]
 rgb Green = [0,1,0]
 rgb Blue  = [0,0,1]
@@ -356,5 +358,6 @@ fromBin' (O b) power = fromBin' b (power+1)
 fromBin' (I b) power = 2^power + fromBin' b (power+1)
 
 toBin :: Int -> Bin
+-- TODO: try doing the challenge
 toBin 0 = O End
 toBin x = inc (toBin (x-1))
