@@ -76,8 +76,7 @@ concatStart :: [a]
 concatStart = []
 
 concatHelper :: [a] -> [a] -> [a]
--- TODO: this can be done with omitting arguments
-concatHelper x y = x ++ y
+concatHelper = (++)
 
 ------------------------------------------------------------------------------
 -- Ex 5: get all occurrences of the largest number in a list with a

@@ -35,11 +35,7 @@ import Data.Array
 -- you remove the Eq a => constraint from the type!
 
 allEqual :: Eq a => [a] -> Bool
--- TODO: this can be done in one line less and without recursion,
--- search for appropriate helper method
-allEqual [] = True
-allEqual (x1:[]) = True
-allEqual (x1:x2:xs) = if x1 /= x2 then False else allEqual (x2:xs)
+allEqual xs = all (\x -> x == head xs) xs
 
 ------------------------------------------------------------------------------
 -- Ex 2: implement the function distinct which returns True if all
@@ -54,8 +50,7 @@ allEqual (x1:x2:xs) = if x1 /= x2 then False else allEqual (x2:xs)
 --   distinct [1,2] ==> True
 
 distinct :: Eq a => [a] -> Bool
--- TODO: you can do this without using length function
-distinct list = (length $ nub list) == length list
+distinct list = list == nub list
 
 ------------------------------------------------------------------------------
 -- Ex 3: implement the function middle that returns the middle value
@@ -104,10 +99,9 @@ rangeOf list = maximum list - (minimum list)
 --   longest ["bcd","def","ab"] ==> "bcd"
 
 longest :: Ord c => [[c]] -> [c]
--- TODO: you don't have to index using (!!) here
 longest = foldr cmplen []
         where cmplen a b
-                | (length a) == (length b) = if (a !! 0) < (b !! 0) then a else b
+                | (length a) == (length b) = if (head a) < (head b) then a else b
                 | (length a) > (length b) = a
                 | otherwise = b
 
@@ -126,11 +120,10 @@ longest = foldr cmplen []
 --   incrementKey 'a' [('a',3.4)] ==> [('a',4.4)]
 
 incrementKey :: (Eq k, Num v) => k -> [(k,v)] -> [(k,v)]
--- TODO: use pattern matchin in increment to destructure kv
 incrementKey key = map increment
-        where increment kv
-                | fst kv == key = (fst kv, (snd kv + 1))
-                | otherwise = kv
+        where increment (k,v)
+                | k == key = (k, (v + 1))
+                | otherwise = (k,v)
 
 ------------------------------------------------------------------------------
 -- Ex 7: compute the average of a list of values of the Fractional
@@ -182,10 +175,7 @@ winner scores player1 player2
 --     ==> Map.fromList [(False,3),(True,1)]
 
 freqs :: (Eq a, Ord a) => [a] -> Map.Map a Int
--- TODO: this is IMO elegant, but try combining it with Map.alter. It is doable
--- in one line and without lambdas
-freqs = foldr update Map.empty
-        where update x = Map.insertWith (+) x 1
+freqs ks = foldr (Map.alter (Just . maybe 1 (+1))) Map.empty ks
 
 ------------------------------------------------------------------------------
 -- Ex 10: recall the withdraw example from the course material. Write a
@@ -213,14 +203,15 @@ freqs = foldr update Map.empty
 --     ==> fromList [("Bob",100),("Mike",50)]
 
 transfer :: String -> String -> Int -> Map.Map String Int -> Map.Map String Int
--- TODO: use "case x of" syntax with tuple for MUCH cleaner code
-transfer from to amount bank
-        | Map.notMember from bank = bank
-        | Map.notMember to   bank = bank
-        | amount <= 0             = bank
-        | otherwise = case Map.lookup from bank of
-                Just fromBalance -> if fromBalance - amount < 0 then bank else Map.insertWith (+) to amount (Map.insertWith subtract from amount bank)
-                Nothing -> bank
+transfer from to amount bank = case (Map.lookup from bank, Map.lookup to bank) of
+        (_, Nothing) -> bank
+        (Nothing, _) -> bank
+        (Just fromBalance, Just _) -> if checkAmounts amount fromBalance then doTransfer else bank
+                where doTransfer = Map.insertWith (+) to amount (Map.insertWith subtract from amount bank)
+                      checkAmounts a b
+                                | a <= 0 = False
+                                | b - a < 0 = False
+                                | otherwise = True
 
 ------------------------------------------------------------------------------
 -- Ex 11: given an Array and two indices, swap the elements in the indices.
@@ -241,8 +232,4 @@ swap i j arr = arr // [(i, arr ! j), (j, arr ! i)]
 -- Hint: check out Data.Array.indices or Data.Array.assocs
 
 maxIndex :: (Ix i, Ord a) => Array i a -> i
--- TODO: instead of foldr, try using maximumBy, compare and pattern throwing unused values in pattern matching
-maxIndex arr = foldr bigger (head $ indices arr) (assocs arr)
-        where bigger (i', val) xs
-                | val > (arr ! xs) = i'
-                | otherwise = xs
+maxIndex arr = maximumBy (\x y -> compare (arr!x) (arr!y)) (indices arr)
