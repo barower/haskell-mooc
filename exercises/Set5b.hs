@@ -39,6 +39,7 @@ treeSize (Node _ left right) = 1 + treeSize left + treeSize right
 --   treeMax (Node 3 (Node 5 Empty Empty) (Node 4 Empty Empty))  ==>  5
 
 treeMax :: Tree Int -> Int
+-- TODO: there is better function for this than max
 treeMax Empty = 0
 treeMax (Node val left right) = max val (max (treeMax left) (treeMax right))
 
@@ -52,6 +53,7 @@ treeMax (Node val left right) = max val (max (treeMax left) (treeMax right))
 --   allValues (>0) (Node 1 Empty (Node 0 Empty Empty))  ==>  False
 
 allValues :: (a -> Bool) -> Tree a -> Bool
+-- TODO: do this without guards
 allValues _ Empty = True
 allValues condition (Node val left right)
         | condition val == False = False
@@ -157,6 +159,7 @@ cull val (Node x left right)
 --                     (Node 3 Empty Empty))   ==>   True
 
 isOrdered :: Ord a => Tree a -> Bool
+-- TODO: use allValues
 isOrdered Empty = True
 isOrdered (Node val left right) = checkLeft left && checkRight right
         where checkLeft  Empty = True
@@ -225,6 +228,7 @@ set (StepR:steps) newVal (Node oldVal left right) = Node oldVal left (set steps 
 
 search :: Eq a => a -> Tree a -> Maybe [Step]
 search _ Empty = Nothing
+-- TODO: it's okay, just indent it in more compact form
 search a (Node b l r)
         | a == b    = Just []
         | otherwise = case search a l of Just x  -> Just (StepL:x)
