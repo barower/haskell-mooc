@@ -28,9 +28,7 @@ instance Ord Country where
   (<=) Finland Norway = True
   (<=) Norway Switzerland = True
   (<=) Finland Switzerland = True
-  (<=) a b
-        | a == b = True
-        | otherwise = False
+  (<=) a b = a == b
 
 ------------------------------------------------------------------------------
 -- Ex 3: Implement an Eq instance for the type Name which contains a String.
@@ -45,6 +43,7 @@ instance Ord Country where
 data Name = Name String
   deriving Show
 
+-- TODO: just use map
 instance Eq Name where
   (==) (Name [])     (Name [])     = True
   (==) (Name (x:xs)) (Name (y:ys))
@@ -63,6 +62,7 @@ instance Eq Name where
 data List a = Empty | LNode a (List a)
   deriving Show
 
+-- TODO: remove guards
 instance Eq a => Eq (List a) where
   (==) Empty           Empty = True
   (==) (LNode a anext) (LNode b bnext)
@@ -110,6 +110,7 @@ instance (Price a) => Price (Maybe a) where
   price Nothing = 0
   price (Just a) = price a
 
+-- TODO: use map
 instance (Price a) => Price [a] where
   price [] = 0
   price (a:as) = price a + price as
@@ -206,6 +207,7 @@ instance Num RationalNumber where
         | a > 0 && b < 0 = RationalNumber a     (0-b)
         | otherwise      = RationalNumber (0-a) (0-b)
 
+-- TODO: technically, you should be returning also instance of RationalNumber
   signum (RationalNumber a b)
         | a > 0 && b > 0 = 1
         | a < 0 && b > 0 = -1
@@ -238,11 +240,11 @@ class Addable a where
 
 instance Addable Integer where
   zero = 0
-  add a b = a + b
+  add = (+)
 
 instance Addable [a] where
   zero = []
-  add a b = a ++ b
+  add = (++)
 
 ------------------------------------------------------------------------------
 -- Ex 12: cycling. Implement a type class Cycle that contains a
@@ -279,7 +281,6 @@ class Cycle a where
 
   stepMany :: Int -> a -> a
   stepMany 0 a = a
-  stepMany 1 a = step a
   stepMany n a = stepMany (n-1) (step a)
 
 instance Cycle Color where
