@@ -208,18 +208,13 @@ data Color = Red | Green | Blue | Mix Color Color | Invert Color
 
 rgb :: Color -> [Double]
 
--- TODO: use map and zipWith
-
 rgb Red   = [1,0,0]
 rgb Green = [0,1,0]
 rgb Blue  = [0,0,1]
 
-rgb (Mix c1 c2) = [(p1 !! 0 + p2 !! 0)/2, (p1 !! 1 + p2 !! 1)/2, (p1 !! 2 + p2 !! 2)/2]
-        where p1 = rgb c1
-              p2 = rgb c2
+rgb (Mix c1 c2) = zipWith (\x y -> (x+y)/2) (rgb c1) (rgb c2)
 
-rgb (Invert c) = [1 - p !! 0, 1 - p !! 1, 1 - p !! 2]
-        where p = rgb c
+rgb (Invert c) = map (1-) (rgb c)
 
 ------------------------------------------------------------------------------
 -- Ex 9: define a parameterized datatype OneOrTwo that contains one or
