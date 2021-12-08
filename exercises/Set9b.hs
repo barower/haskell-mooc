@@ -191,6 +191,7 @@ type Candidate = Coord
 type Stack     = [Coord]
 
 danger :: Candidate -> Stack -> Bool
+-- TODO: use list comprehensions instead
 danger _    []             = False
 danger cand (queen:queens) = if sameRow cand queen || sameCol cand queen || sameDiag cand queen || sameAntidiag cand queen then True else danger cand queens
 

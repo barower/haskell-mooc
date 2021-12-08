@@ -57,6 +57,7 @@ echo str = str ++ ", " ++ echo (tail str)
 -- are valid.
 
 countValid :: [String] -> Int
+-- TODO: filter makes more sense here
 countValid serials = foldr check 0 serials
         where check serial acc
                 | serial !! 2 == serial !! 4 = acc + 1
@@ -73,6 +74,7 @@ countValid serials = foldr check 0 serials
 --   repeated [1,2,1,2,3,3] ==> Just 3
 
 repeated :: Eq a => [a] -> Maybe a
+-- TODO: do less pattern matching
 repeated [] = Nothing
 repeated (x:[]) = Nothing
 repeated (x1:x2:xs)
@@ -99,6 +101,7 @@ repeated (x1:x2:xs)
 --     ==> Left "no data"
 
 sumSuccess :: [Either String Int] -> Either String Int
+-- TODO: use list comprehension instead of foldr
 sumSuccess measurements = foldr f noData measurements
         where f (Right x) (Left "no data") = Right x
               f (Right x) (Right acc) = Right (x + acc)
@@ -175,6 +178,7 @@ data Text = Text String
   deriving Show
 
 instance Eq Text where
+  -- TODO: this is horrible, try filter
   (Text []) == (Text []) = True
   (Text []) == (Text (t2:t2s))
         | Data.Char.isSpace t2 = Text [] == Text t2s
@@ -219,6 +223,7 @@ instance Eq Text where
 --       ==> [("a",1),("b",2)]
 
 compose :: (Eq a, Eq b) => [(a,b)] -> [(b,c)] -> [(a,c)]
+-- TODO: try using concatMap
 compose pairs1 pairs2 = foldr f [] pairs1
         where f (a,b) acc = case lookup b pairs2 of
                         Just c -> acc ++ [(a,c)]
