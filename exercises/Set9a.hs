@@ -26,7 +26,11 @@ import Mooc.Todo
 -- Otherwise return "Ok."
 
 workload :: Int -> Int -> String
-workload nExercises hoursPerExercise = todo
+workload nExercises hoursPerExercise
+        | load > 100 = "Holy moly!"
+        | load > 10 = "Ok."
+        | otherwise = "Piece of cake!"
+        where load = (*) hoursPerExercise nExercises
 
 ------------------------------------------------------------------------------
 -- Ex 2: Implement the function echo that builds a string like this:
@@ -39,7 +43,8 @@ workload nExercises hoursPerExercise = todo
 -- Hint: use recursion
 
 echo :: String -> String
-echo = todo
+echo "" = ""
+echo str = str ++ ", " ++ echo (tail str)
 
 ------------------------------------------------------------------------------
 -- Ex 3: A country issues some banknotes. The banknotes have a serial
@@ -52,7 +57,11 @@ echo = todo
 -- are valid.
 
 countValid :: [String] -> Int
-countValid = todo
+countValid serials = foldr check 0 serials
+        where check serial acc
+                | serial !! 2 == serial !! 4 = acc + 1
+                | serial !! 3 == serial !! 5 = acc + 1
+                | otherwise = acc
 
 ------------------------------------------------------------------------------
 -- Ex 4: Find the first element that repeats two or more times _in a
@@ -64,7 +73,11 @@ countValid = todo
 --   repeated [1,2,1,2,3,3] ==> Just 3
 
 repeated :: Eq a => [a] -> Maybe a
-repeated = todo
+repeated [] = Nothing
+repeated (x:[]) = Nothing
+repeated (x1:x2:xs)
+        | x1 == x2 = Just x1
+        | otherwise = repeated (x2:xs)
 
 ------------------------------------------------------------------------------
 -- Ex 5: A laboratory has been collecting measurements. Some of the
@@ -86,7 +99,12 @@ repeated = todo
 --     ==> Left "no data"
 
 sumSuccess :: [Either String Int] -> Either String Int
-sumSuccess = todo
+sumSuccess measurements = foldr f noData measurements
+        where f (Right x) (Left "no data") = Right x
+              f (Right x) (Right acc) = Right (x + acc)
+              f (Left _)  (Right acc) = Right acc
+              f _         _           = noData
+              noData = Left "no data"
 
 ------------------------------------------------------------------------------
 -- Ex 6: A combination lock can either be open or closed. The lock
@@ -108,30 +126,37 @@ sumSuccess = todo
 --   isOpen (open "0000" (lock (changeCode "0000" (open "1234" aLock)))) ==> True
 --   isOpen (open "1234" (lock (changeCode "0000" (open "1234" aLock)))) ==> False
 
-data Lock = LockUndefined
+data Lock = Lock LockState String
+  deriving Show
+
+data LockState = Opened | Locked
   deriving Show
 
 -- aLock should be a locked lock with the code "1234"
 aLock :: Lock
-aLock = todo
+aLock = Lock Locked "1234"
 
 -- isOpen returns True if the lock is open
 isOpen :: Lock -> Bool
-isOpen = todo
+isOpen (Lock Locked _) = False
+isOpen (Lock Opened _) = True
 
 -- open tries to open the lock with the given code. If the code is
 -- wrong, nothing happens.
 open :: String -> Lock -> Lock
-open = todo
+open cx (Lock Locked cy) = if cx == cy then Lock Opened cy else Lock Locked cy
+open _  (Lock Opened cy)  = Lock Opened cy
 
 -- lock closes a lock. If the lock is already closed, nothing happens.
 lock :: Lock -> Lock
-lock = todo
+lock (Lock Locked x) = Lock Locked x
+lock (Lock Opened x) = Lock Locked x
 
 -- changeCode changes the code of an open lock. If the lock is closed,
 -- nothing happens.
 changeCode :: String -> Lock -> Lock
-changeCode = todo
+changeCode newcode (Lock Opened _      ) = Lock Opened newcode
+changeCode _       (Lock Locked oldcode) = Lock Locked oldcode
 
 ------------------------------------------------------------------------------
 -- Ex 7: Here's a type Text that just wraps a String. Implement an Eq
@@ -149,6 +174,18 @@ changeCode = todo
 data Text = Text String
   deriving Show
 
+instance Eq Text where
+  (Text []) == (Text []) = True
+  (Text []) == (Text (t2:t2s))
+        | Data.Char.isSpace t2 = Text [] == Text t2s
+        | otherwise = False
+  (Text (t1:t1s)) == (Text [])
+        | Data.Char.isSpace t1 = Text t1s == Text []
+        | otherwise = False
+  (Text (t1:t1s)) == (Text (t2:t2s))
+        | Data.Char.isSpace t1 = Text t1s == Text (t2:t2s)
+        | Data.Char.isSpace t2 = Text (t1:t1s) == Text t2s
+        | otherwise            = if t1 /= t2 then False else Text t1s == Text t2s
 
 ------------------------------------------------------------------------------
 -- Ex 8: We can represent functions or mappings as lists of pairs.
@@ -182,7 +219,10 @@ data Text = Text String
 --       ==> [("a",1),("b",2)]
 
 compose :: (Eq a, Eq b) => [(a,b)] -> [(b,c)] -> [(a,c)]
-compose = todo
+compose pairs1 pairs2 = foldr f [] pairs1
+        where f (a,b) acc = case lookup b pairs2 of
+                        Just c -> acc ++ [(a,c)]
+                        Nothing -> acc
 
 ------------------------------------------------------------------------------
 -- Ex 9: Reorder a list using a list of indices.
@@ -226,4 +266,7 @@ multiply :: Permutation -> Permutation -> Permutation
 multiply p q = map (\i -> p !! (q !! i)) (identity (length p))
 
 permute :: Permutation -> [a] -> [a]
-permute = todo
+permute indices input = map f (identity (length input))
+        where f i = case elemIndex i indices of
+                Just ni -> input !! ni
+
