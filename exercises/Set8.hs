@@ -474,6 +474,8 @@ checkered = flipBlend largeVerticalStripes2
 data Blur = Blur
   deriving Show
 
+-- TODO: this is bad. Use getRed/Green/Blue, map and sum
+
 blendColor5 :: Color -> Color -> Color -> Color -> Color -> Color
 blendColor5 (Color r1 g1 b1) (Color r2 g2 b2) (Color r3 g3 b3) (Color r4 g4 b4) (Color r5 g5 b5) = Color (avg r1 r2 r3 r4 r5) (avg g1 g2 g3 g4 g5) (avg b1 b2 b3 b4 b5)
         where avg x1 x2 x3 x4 x5 = (x1 + x2 + x3 + x4 + x5) `div` 5
@@ -499,6 +501,7 @@ data BlurMany = BlurMany Int
   deriving Show
 
 instance Transform BlurMany where
+  -- TODO: try not using iterate
   apply (BlurMany times) = (!! times) . iterate (apply Blur)
 ------------------------------------------------------------------------------
 
